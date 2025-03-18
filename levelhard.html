@@ -31,60 +31,35 @@
         const userScoreRef = ref(database, userScoreKey);
 
         const codingQuestions = [
-
-    
-    { 
-        question: `Given an array of numbers, find the number among them such that all numbers in the array are divisible by it. If no such number exists, print -1.
-
-Input:
-array size:5  
-array elements:10 5 45 125 485
-
-Output:
-5`, 
-        expectedOutput: "5\n"
-    },
-    
-
-    { 
-        question: `Write a program to find the longest common prefix string amongst an array of strings.
-
-Input: strs = ["flower","flow","flight"]
-
-Output: "fl"`, 
-        expectedOutput: "fl\n"
-    }
-];
-
-
+            {
+                question: `Given an array of numbers, find the number among them such that all numbers in the array are divisible by it. If no such number exists, print -1.
+                Input: array size: 5  
+                array elements: 10 5 45 125 485
+                Output: 5`,
+                expectedOutput: "5\n"
+            },
+            {
+                question: `Write a program to find the longest common prefix string amongst an array of strings.
+                Input: strs = ["flower","flow","flight"]
+                Output: "fl"`,
+                expectedOutput: "fl\n"
+            }
+        ];
 
         let currentQuestionIndex = 0;
         let totalScore = 0;
         let awardedPoints = new Array(codingQuestions.length).fill(false);
-
         let userAnswers = new Array(codingQuestions.length).fill(""); // Store user answers
 
-function loadQuestion() {
-    document.getElementById("question").innerText = codingQuestions[currentQuestionIndex].question;
-    document.getElementById("code").value = userAnswers[currentQuestionIndex]; // Load saved answer
-    document.getElementById("output-box").innerText = "";
-    document.getElementById("score").innerText = `Score: ${totalScore}`;
-    document.getElementById("prev-btn").style.display = currentQuestionIndex === 0 ? "none" : "inline-block";
-    document.getElementById("next-btn").style.display = currentQuestionIndex === codingQuestions.length - 1 ? "none" : "inline-block";
-    document.getElementById("submit-btn").style.display = currentQuestionIndex === codingQuestions.length - 1 ? "inline-block" : "none";
-}
-
-document.getElementById("next-btn").addEventListener("click", () => {
-    userAnswers[currentQuestionIndex] = document.getElementById("code").value; // Save answer before moving
-    currentQuestionIndex++;
-    loadQuestion();
-});
-
-document.getElementById("prev-btn").addEventListener("click", () => {
-    userAnswers[currentQuestionIndex] = document.getElementById("code").value; // Save answer before moving
-    currentQuestionIndex--;
-    loadQuestion();
-});
+        function loadQuestion() {
+            document.getElementById("question").innerText = codingQuestions[currentQuestionIndex].question;
+            document.getElementById("code").value = userAnswers[currentQuestionIndex]; // Load saved answer
+            document.getElementById("output-box").innerText = "";
+            document.getElementById("score").innerText = `Score: ${totalScore}`;
+            document.getElementById("prev-btn").style.display = currentQuestionIndex === 0 ? "none" : "inline-block";
+            document.getElementById("next-btn").style.display = currentQuestionIndex === codingQuestions.length - 1 ? "none" : "inline-block";
+            document.getElementById("submit-btn").style.display = currentQuestionIndex === codingQuestions.length - 1 ? "inline-block" : "none";
+        }
 
         async function runCode() {
             const code = document.getElementById("code").value;
@@ -115,6 +90,7 @@ document.getElementById("prev-btn").addEventListener("click", () => {
                 let output = result.run.stdout ? result.run.stdout : result.run.stderr ? "Error: " + result.run.stderr : "No output.";
                 outputBox.innerText = output;
 
+                // Check if the output is correct
                 if (output.trim() === codingQuestions[currentQuestionIndex].expectedOutput.trim() && !awardedPoints[currentQuestionIndex]) {
                     totalScore += 15;
                     awardedPoints[currentQuestionIndex] = true;
@@ -139,15 +115,20 @@ document.getElementById("prev-btn").addEventListener("click", () => {
 
         document.addEventListener("DOMContentLoaded", () => {
             loadQuestion();
+
             document.getElementById("run-btn").addEventListener("click", runCode);
             document.getElementById("next-btn").addEventListener("click", () => {
+                userAnswers[currentQuestionIndex] = document.getElementById("code").value; // Save answer before moving
                 currentQuestionIndex++;
                 loadQuestion();
             });
+
             document.getElementById("prev-btn").addEventListener("click", () => {
+                userAnswers[currentQuestionIndex] = document.getElementById("code").value; // Save answer before moving
                 currentQuestionIndex--;
                 loadQuestion();
             });
+
             document.getElementById("submit-btn").addEventListener("click", submitQuiz);
         });
     </script>
@@ -171,7 +152,6 @@ document.getElementById("prev-btn").addEventListener("click", () => {
         }
         #question {
             font-size: 1em;
-            
             margin-bottom: 15px;
         }
         textarea {
