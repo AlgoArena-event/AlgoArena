@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algo Arena - Coding Challenge</title>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBp1v7khdSis3VuBETMi7UWFzpQlFRAQsQ",
+            authDomain: "algoarenaevent.firebaseapp.com",
+            databaseURL: "https://algoarenaevent-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "algoarenaevent",
+            storageBucket: "algoarenaevent.appspot.com",
+            messagingSenderId: "1075838831030",
+            appId: "1:1075838831030:web:7909ac49bfa2843be55917"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const email = sessionStorage.getItem("userEmail");
+
+        if (!email) {
+            alert("User email not found. Please log in again.");
+            window.location.href = "index.html";
+        }
+
+        const userScoreKey = `users/${email.replace(/\./g, "_")}/coding_score`;
+        const userScoreRef = ref(database, userScoreKey);
+
+        const codingQuestions = [
+
+    
+    { 
+        question: `Given an array of numbers, find the number among them such that all numbers in the array are divisible by it. If no such number exists, print -1.
+
+Input:
+array size:5  
+array elements:10 5 45 125 485
+
+Output:
+5`, 
+        expectedOutput: "5\n"
+    },
+    
+
+    { 
+        question: `Write a program to find the longest common prefix string amongst an array of strings.
+
+Input: strs = ["flower","flow","flight"]
+
+Output: "fl"`, 
+        expectedOutput: "fl\n"
+    }
+];
+
+
+
+        let currentQuestionIndex = 0;
+        let totalScore = 0;
+        let awardedPoints = new Array(codingQuestions.length).fill(false);
+
+        let userAnswers = new Array(codingQuestions.length).fill(""); // Store user answers
+
+function loadQuestion() {
+    document.getElementById("question").innerText = codingQuestions[currentQuestionIndex].question;
+    document.getElementById("code").value = userAnswers[currentQuestionIndex]; // Load saved answer
+    document.getElementById("output-box").innerText = "";
+    document.getElementById("score").innerText = `Score: ${totalScore}`;
+    document.getElementById("prev-btn").style.display = currentQuestionIndex === 0 ? "none" : "inline-block";
+    document.getElementById("next-btn").style.display = currentQuestionIndex === codingQuestions.length - 1 ? "none" : "inline-block";
+    document.getElementById("submit-btn").style.display = currentQuestionIndex === codingQuestions.length - 1 ? "inline-block" : "none";
+}
+
+document.getElementById("next-btn").addEventListener("click", () => {
+    userAnswers[currentQuestionIndex] = document.getElementById("code").value; // Save answer before moving
+    currentQuestionIndex++;
+    loadQuestion();
+});
+
+document.getElementById("prev-btn").addEventListener("click", () => {
+    userAnswers[currentQuestionIndex] = document.getElementById("code").value; // Save answer before moving
+    currentQuestionIndex--;
+    loadQuestion();
+});
+
+        async function runCode() {
+            const code = document.getElementById("code").value;
+            const language = document.getElementById("language").value;
+            const outputBox = document.getElementById("output-box");
+
+            if (!code.trim()) {
+                outputBox.innerText = "Please write some code before running.";
+                return;
+            }
+
+            outputBox.innerText = "Running...";
+
+            const requestData = {
+                language: language,
+                version: language === "python" ? "3.10.0" : "*",
+                files: [{ content: code }]
+            };
+
+            try {
+                const response = await fetch("https://emkc.org/api/v2/piston/execute", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(requestData)
+                });
+
+                const result = await response.json();
+                let output = result.run.stdout ? result.run.stdout : result.run.stderr ? "Error: " + result.run.stderr : "No output.";
+                outputBox.innerText = output;
+
+                if (output.trim() === codingQuestions[currentQuestionIndex].expectedOutput.trim() && !awardedPoints[currentQuestionIndex]) {
+                    totalScore += 15;
+                    awardedPoints[currentQuestionIndex] = true;
+                    document.getElementById("score").innerText = `Score: ${totalScore}`;
+                }
+            } catch (error) {
+                outputBox.innerText = "Execution failed. Please try again.";
+                console.error("Execution error:", error);
+            }
+        }
+
+        async function submitQuiz() {
+            try {
+                await set(userScoreRef, totalScore);
+                alert(`Quiz submitted! Your score is ${totalScore} out of ${codingQuestions.length * 15}`);
+                window.location.href = "level.html";
+            } catch (error) {
+                console.error("Error storing score:", error);
+                alert("Failed to store score. Please try again.");
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            loadQuestion();
+            document.getElementById("run-btn").addEventListener("click", runCode);
+            document.getElementById("next-btn").addEventListener("click", () => {
+                currentQuestionIndex++;
+                loadQuestion();
+            });
+            document.getElementById("prev-btn").addEventListener("click", () => {
+                currentQuestionIndex--;
+                loadQuestion();
+            });
+            document.getElementById("submit-btn").addEventListener("click", submitQuiz);
+        });
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Creepster&display=swap');
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background: url('eas.jpg') no-repeat center center/cover;
+            color: white;
+        }
+        .container {
+            width: 60%;
+            margin: 50px auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.2);
+            text-align: center;
+        }
+        #question {
+            font-size: 1em;
+            
+            margin-bottom: 15px;
+        }
+        textarea {
+            width: 90%;
+            height: 120px;
+            border-radius: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border: none;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            outline: none;
+        }
+        select, button {
+            font-size: 16px;
+            padding: 10px 15px;
+            margin: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button {
+            background-color: green;
+            color: white;
+            border: none;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: darkgreen;
+        }
+        #output-box {
+            width: 90%;
+            height: 120px;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: lime;
+            font-size: 16px;
+            border-radius: 10px;
+            white-space: pre-wrap;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="welcome-text">LEVEL 3</div>
+        <p id="question">Loading question...</p>
+        <textarea id="code" placeholder="Write your code here..."></textarea><br>
+        <select id="language">
+            <option value="python">Python</option>
+            <option value="java">Java</option>
+            <option value="cpp">C++</option>
+            <option value="c">C</option>
+        </select>
+        <button id="run-btn">Run Code</button>
+        <button id="prev-btn" style="display: none;">Previous</button>
+        <button id="next-btn">Next</button>
+        <button id="submit-btn" style="display: none;">Submit</button>
+        <h2>Output:</h2>
+        <div id="output-box"></div>
+        <h2 id="score">Score: 0</h2>
+    </div>
+</body>
+</html>

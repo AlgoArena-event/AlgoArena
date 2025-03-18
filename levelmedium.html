@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algo Arena Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Creepster',cursive;
+            margin: 0;
+            padding: 0;
+            background: url('eas.jpg') no-repeat center center/cover;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items:center;
+            justify-content: center;
+            color: white;
+        }
+        #quiz-container {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+            width: 80%;
+            max-width: 600px;
+            text-align: left;
+        }
+        #question {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+        }
+        #code-block {
+            background-color: #222;
+            color: lime;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+        #answer-input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 5px;
+            font-size: 1rem;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #login-container {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 1000;
+            width: 300px;
+            color: white;
+        }
+        #login-container input {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            border: 1px solid #555;
+        }
+        #login-container button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+        }
+        #timer{
+            font-size: 1.3rem;
+            font-weight: bold;
+            color:white;
+            margin-bottom: 20px;
+            font-family:'Courier New', Courier, monospace;
+        }
+        #level-text{
+            font-size:40px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="level-text"></div>
+    <div id="timer">30:00</div>
+    <div id="quiz-container">
+        <div id="question"></div>
+        <pre id="code-block"></pre>
+        <input type="text" id="answer-input" placeholder="Enter your answer">
+        <div class="buttons">
+            <button id="prev-btn" style="display: none;">Previous</button>
+            <button id="next-btn">Next</button>
+            <button id="submit-btn" style="display: none;">Submit</button>
+        </div>
+    </div>
+    <div id="login-container">
+        <h2>Login</h2>
+        <input type="email" id="login-email" placeholder="Email">
+        <input type="password" id="login-password" placeholder="Password">
+        <button onclick="handleLogin()">Login</button>
+    </div>
+
+    <script id="easy-questions" type="application/json">
+[
+{
+    "question": "Fix the memory issue in the dynamic string allocation:",
+    "code": "#include <stdio.h>\n#include <stdlib.h>\nint main() {\n    char *str;\n    str = malloc(5);\n    str = \"Hello\";\n    printf(\"%s\", str);\n    free(str);\n    return 0;\n}",
+    "answer": "strcpy(str, \"Hello\");"
+},
+
+{
+    "question": "Fix the logical error in finding the largest element in an array:",
+    "code": "#include <stdio.h>\nint findMax(int arr[], int n) {\n    int max = 0;\n    for(int i = 1; i < n; i++) {\n        if(arr[i] > max) {\n            max = arr[i];\n        }\n    }\n    return max;\n}\nint main() {\n    int arr[] = {3, 5, 2, 8, 6};\n    printf(\"%d\", findMax(arr, 5));\n    return 0;\n}",
+    "answer": "int max = arr[0];"
+}
+
+    ]
+</script>
+<script id="medium-questions" type="application/json">
+    [
+    {
+        "question": "Rotate an array to the left by d positions:",
+        "code": "#include <stdio.h>\nvoid rotate(int arr[], int n, int d) {\n    int temp[d]; \n    for (int i = 0; i < d; i++)  \n        temp[i] = arr[i];\n    for (int i = d; i < n; i++)  \n        arr[i - d] = arr[i];\n    for (int i = 0; i < d; i++)  \n        arr[n - d + i] = temp[i];  \n}\nint main() {\n    int arr[] = {1, 2, 3, 4, 5}, d = 2, n = 5;\n    rotate(arr, n, d);\n    for (int i = 0; i < n; i++) \n        printf(\"%d \", arr[i]);\n    return 0;\n}",
+        "answer": "arr[i-d]=arr[i + d];"
+    },
+    
+    {
+        "question": "Check if a number is trendy (middle digit divisible by 3):",
+        "code": "#include <stdio.h>\nint isTrendy(int n) {\n    if (n < 100 || n > 999) return 0;  \n    int mid = (n / 10) % 10;\n    return mid % 3 == 0; \n}\nint main() {\n    int num = 234;  \n    if (isTrendy(num))  \n        printf(\"Trendy Number\\n\");\n    else  \n        printf(\"Not a Trendy Number\\n\");\n    return 0;\n}",
+        "answer": "if(n<100||n>999) return 1;"
+    },
+    
+    {
+        "question": "Read and print a line of text:",
+        "code": "#include <stdio.h>\nint main() {\n    char str[100]; \n    printf(\"Enter a line: \");\n    gets(str);\n    printf(\"You entered: %s\\n\", str);\n    return 0;\n}",
+        "answer": "fgets(str,sizeof(str),stdin);"
+    },
+    
+    {
+        "question": "Fix the incorrect swapping logic in the GCD function:",
+        "code": "#include <stdio.h>\nint gcd(int a, int b) {\n    while (b != 0)\n        a = b, b = a % b;\n    return a;\n}\nint main() {\n    int x = 56, y = 98;\n    printf(\"GCD: %d\\n\", gcd(x, y));\n    return 0;\n}",
+        "answer": "int temp=b; b=a%b; a=temp;"
+    },
+    
+    {
+        "question": "Reverse the digits of a number:",
+        "code": "#include <stdio.h>\nint reverse(int n) {\n    int rev = 0;\n    while (n > 0) {\n        rev = rev * 10 + (n % 10);\n        n /= 10;\n    }\n    return rev;\n}\nint main() {\n    int num = 1234;\n    printf(\"Reverse: %d\\n\", reverse(num));\n    return 0;\n}",
+        "answer": "while(n!=0)"
+    }
+    ]
+    </script>
+    
+<script id="hard-questions" type="application/json">
+[
+    {"question": "What is the output of this C code?", "code": "#include <stdio.h>\n\nint main() {\n    int x = 10;\n    int *ptr = &x;\n    printf(\"%d\", *ptr);\n    return 0;\n}", "answer": "10"},
+    {"question": "Fix this code to correctly calculate the factorial:", "code": "#include <stdio.h>\n\nint factorial(int n) {\n    if (n == 0) return 1;\n    return n * factorial(n - 1);\n}\n\nint main() {\n    printf(\"%d\", factorial(5));\n    return 0;\n}", "answer": "No errors, it's already working correctly."}
+]
+</script>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBp1v7khdSis3VuBETMi7UWFzpQlFRAQsQ", // Replace with your actual API key
+        authDomain: "algoarenaevent.firebaseapp.com",
+        databaseURL: "https://algoarenaevent-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "algoarenaevent",
+        storageBucket: "algoarenaevent.appspot.com",
+        messagingSenderId: "1075838831030",
+        appId: "1:1075838831030:web:7909ac49bfa2843be55917"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    let timeLeft = 30 * 60; // 30 minutes in seconds
+
+    function updateTimer() {
+        let minutes = Math.floor(timeLeft / 60);
+        let seconds = timeLeft % 60;
+        document.getElementById("timer").textContent = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+        if (timeLeft === 0) {
+            alert("Time is up! Submitting quiz...");
+            submitQuiz();
+        } else {
+            timeLeft--;
+            setTimeout(updateTimer, 1000);
+        }
+    }
+    updateTimer();
+
+    const selectedLevel = localStorage.getItem("selectedLevel");
+    const questions = JSON.parse(document.getElementById(`${selectedLevel}-questions`).textContent);
+    let currentQuestionIndex = 0;
+    let score = 0;
+    const selectedAnswers = {};
+
+    document.getElementById("level-text").innerText = `Level ${selectedLevel.toUpperCase()}`;
+    loadQuestion();
+
+    
+
+    
+
+function loadQuestion() {
+    const questionData = questions[currentQuestionIndex];
+    document.getElementById("question").textContent = questionData.question;
+    document.getElementById("code-block").textContent = questionData.code;
+
+    // Load saved answer if exists
+    document.getElementById("answer-input").value = selectedAnswers[currentQuestionIndex] || "";
+
+    document.getElementById("prev-btn").style.display = currentQuestionIndex > 0 ? "inline-block" : "none";
+    document.getElementById("next-btn").style.display = currentQuestionIndex < questions.length - 1 ? "inline-block" : "none";
+    document.getElementById("submit-btn").style.display = currentQuestionIndex === questions.length - 1 ? "inline-block" : "none";
+}
+
+function saveAnswer() {
+    selectedAnswers[currentQuestionIndex] = document.getElementById("answer-input").value.trim();
+}
+
+function nextQuestion() {
+    saveAnswer(); // Save answer before moving
+    currentQuestionIndex++;
+    loadQuestion();
+}
+
+function previousQuestion() {
+    saveAnswer(); // Save answer before moving
+    currentQuestionIndex--;
+    loadQuestion();
+}
+
+document.getElementById("next-btn").addEventListener("click", nextQuestion);
+document.getElementById("prev-btn").addEventListener("click", previousQuestion);
+    async function submitQuiz() {
+    const userAnswer = document.getElementById("answer-input").value.trim().toLowerCase();
+    const correctAnswer = questions[currentQuestionIndex].answer.toLowerCase();
+    if (userAnswer === correctAnswer) {
+        score++;
+    }
+
+    const email = sessionStorage.getItem("userEmail");
+    if (!email) {
+        alert("Please log in to save your score.");
+        window.location.href = "index.html";
+        return;
+    }
+    const emailKey = email.replace(/\./g, "_");
+    const scoreRef = ref(db, `users/${emailKey}/${selectedLevel}Score`);
+
+    if (confirm(`Your score is ${score} out of ${questions.length}. Submit?`)) {
+        await set(scoreRef, score); // Store score in Firebase
+        alert("Score submitted successfully!");
+        window.location.href = "level.html";
+    }
+}
+    document.getElementById("submit-btn").addEventListener("click", submitQuiz);
+
+    onAuthStateChanged(auth, (user) => {
+    const submitButton = document.getElementById("submit-btn");
+    const loginContainer = document.getElementById("login-container");
+
+    // Check if the user is logged in (stored in sessionStorage)
+    const savedEmail = sessionStorage.getItem("userEmail");
+
+    if (user || savedEmail) {
+        submitButton.disabled = false;
+        loginContainer.style.display = "none";
+
+        // If user object exists but session storage is empty, store email
+        if (user && !savedEmail) {
+            sessionStorage.setItem("userEmail", user.email);
+        }
+    } else {
+        // Only show the login alert if there's no session info
+        alert("You must log in to play the game");
+        window.location.href = "index.html";
+    }
+});
+
+    async function handleLogin() {
+        const email = document.getElementById("login-email").value;
+        const password = document.getElementById("login-password").value;
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+        } catch (error) {
+            console.error("Login failed:", error);
+            alert("Login failed. Please check your email and password.");
+        }
+    }
+</script>
+
+</body>
+</html>

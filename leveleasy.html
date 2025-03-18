@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - Algo Arena</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: url('eas.jpg') no-repeat center center/cover;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        #level-text {
+            font-family: 'Creepster', cursive;
+            font-size: 40px;
+            color: white;
+            margin-bottom: 20px;
+        }
+        #quiz-container {
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 50px;
+            border-radius: 15px;
+            width: 60%;
+            font-size: 28px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3);
+        }
+        #question {
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        #options button {
+            display: block;
+            margin: 15px auto;
+            padding: 15px;
+            width: 90%;
+            font-size: 15px;
+            background-color: #f0f0f0;
+            border: 2px solid #ccc;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: background 0.3s ease, border 0.3s ease;
+            height:16px;
+        }
+        #options button:hover {
+            background-color: #dcdcdc;
+        }
+        .selected {
+            background-color: lightblue !important;
+            border: 2px solid blue !important;
+        }
+        #next-btn, #prev-btn, #submit-btn {
+            font-size: 15px;
+            padding: 14px 30px;
+            border-radius: 12px;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin: 10px;
+            display: block;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+        #timer {
+            font-size: 30px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 20px;
+        }
+        #next-btn {
+            background: linear-gradient(45deg, #007bff, #00d4ff);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+            
+        }
+        #prev-btn {
+            background: linear-gradient(45deg, #28a745, #72ff72);
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+          
+        }
+        #submit-btn {
+            background: linear-gradient(45deg, #ff0000, #ff7373);
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4);
+            
+        }
+    </style>
+</head>
+<body>
+<div id="level-text">Level Easy</div>
+<div id="timer">25:00</div>
+<div id="quiz-container">
+    <p id="question">Loading question...</p>
+    <div id="options"></div>
+    <button id="prev-btn">Previous</button>
+    <button id="next-btn">Next</button>
+    <button id="submit-btn">Submit</button>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBp1v7khdSis3VuBETMi7UWFzpQlFRAQsQ",
+        authDomain: "algoarenaevent.firebaseapp.com",
+        databaseURL: "https://algoarenaevent-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "algoarenaevent",
+        storageBucket: "algoarenaevent.appspot.com",
+        messagingSenderId: "1075838831030",
+        appId: "1:1075838831030:web:7909ac49bfa2843be55917"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    const email = sessionStorage.getItem("userEmail");
+    if (!email) {
+        alert("User email not found. Please log in again.");
+        window.location.href = "index.html";
+    }
+
+    let questions = [
+    { 
+        "question": "What will be the output of the following code?\n\nint x = 5;\nprintf(\"%d\", x++ * ++x);", 
+        "options": ["25", "30", "Undefined behavior"], 
+        "answer": "Undefined behavior" 
+    },
+    { 
+        "question": "What does sizeof('A') return in C?", 
+        "options": ["1", "4", "2"], 
+        "answer": "4" 
+    },
+    { 
+        "question": "What happens when you try to modify a string defined as char *str = \"Hello\";?", 
+        "options": ["It gets modified", "Compilation error", "Segmentation fault"], 
+        "answer": "Segmentation fault" 
+    },
+    { 
+        "question": "What will be printed by the following?\n\nint x = 1;\nif (x = 0)\n    printf(\"Zero\");\nelse\n    printf(\"Non-Zero\");", 
+        "options": ["Zero", "Non-Zero", "Compilation error"], 
+        "answer": "Non-Zero" 
+    },
+    { 
+        "question": "Which function is used to dynamically allocate memory in C?", 
+        "options": ["malloc()", "allocate()", "memory()"], 
+        "answer": "malloc()" 
+    },
+    { 
+        "question": "What does the following expression evaluate to?\n\nprintf(\"%d\", 3 > 2 > 1);", 
+        "options": ["0", "1", "Undefined"], 
+        "answer": "0" 
+    },
+    { 
+        "question": "What will be the result of printf(\"%d\", 10 >> 2);?", 
+        "options": ["2", "3", "2"], 
+        "answer": "2" 
+    },
+    { 
+        "question": "What will be the output of this code?\n\nint i = 5;\nwhile(i-- > 0) {\n    printf(\"%d \", i);\n}", 
+        "options": ["5 4 3 2 1", "4 3 2 1 0", "4 3 2 1"], 
+        "answer": "4 3 2 1 0" 
+    },
+    { 
+        "question": "What is the output?\n\nprintf(\"%d\", printf(\"Hello\"));", 
+        "options": ["Hello5", "Hello0", "Compilation error"], 
+        "answer": "Hello5" 
+    },
+    { 
+        "question": "What is the output of the following code?\n\nint x = 5;\nint *p = &x;\nprintf(\"%d\", *p);", 
+        "options": ["Memory address of x", "5", "Compilation error"], 
+        "answer": "5" 
+    },
+    { 
+        "question": "What is the output?\n\nint x = 3, y = 5;\nprintf(\"%d\", x+++y);", 
+        "options": ["8", "9", "Compilation error"], 
+        "answer": "8" 
+    },
+    { 
+        "question": "What is the output of printf(\"%d\", 'A' + 1);?", 
+        "options": ["66", "B", "Compilation error"], 
+        "answer": "66" 
+    },
+    { 
+        "question": "What will sizeof(int*) return in a 64-bit system?", 
+        "options": ["4", "8", "16"], 
+        "answer": "8" 
+    },
+    { 
+        "question": "How do you correctly return a value from a function?", 
+        "options": ["return 5;", "return;", "return void;"], 
+        "answer": "return 5;" 
+    },
+    { 
+        "question": "What is the output of printf(\"%c\", 65);?", 
+        "options": ["65", "A", "Compilation error"], 
+        "answer": "A" 
+    }
+];
+
+    let currentQuestionIndex = 0;
+    let selectedAnswers = {};
+
+    
+    function loadQuestion() {
+    const question = questions[currentQuestionIndex];
+    document.getElementById("question").textContent = question.question;
+    const optionsDiv = document.getElementById("options");
+    optionsDiv.innerHTML = '';
+
+    question.options.forEach(option => {
+        const button = document.createElement('button');
+        button.textContent = option;
+
+        // Retain previously selected answer
+        if (selectedAnswers[question.question] === option) {
+            button.classList.add('selected');
+        }
+
+        button.addEventListener('click', () => selectAnswer(question, button));
+        optionsDiv.appendChild(button);
+    });
+
+    updateButtons();
+}
+
+    function selectAnswer(question, button) {
+        selectedAnswers[question.question] = button.textContent;
+        document.querySelectorAll('#options button').forEach(btn => btn.classList.remove('selected'));
+        button.classList.add('selected');
+    }
+
+    function submitQuiz() {
+        let score = Object.keys(selectedAnswers).reduce((acc, question) => {
+            return acc + (selectedAnswers[question] === questions.find(q => q.question === question).answer ? 1 : 0);
+        }, 0);
+        set(ref(database, `users/${email.replace(/\./g, "_")}/easy_score`), score).then(() => {
+            alert(`Quiz submitted! Your score is ${score} out of ${questions.length}`);
+            window.location.href = "level.html";
+        });
+    }
+
+    function updateButtons() {
+        document.getElementById("prev-btn").style.display = currentQuestionIndex > 0 ? "inline-block" : "none";
+        document.getElementById("next-btn").style.display = currentQuestionIndex < questions.length - 1 ? "inline-block" : "none";
+        document.getElementById("submit-btn").style.display = currentQuestionIndex === questions.length - 1 ? "inline-block" : "none";
+    }
+
+    let time = 15 * 60;
+    const timerElement = document.getElementById("timer");
+    setInterval(() => {
+        let minutes = Math.floor(time / 60);
+        let seconds = time % 60;
+        timerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        time--;
+        if (time < 0) {
+            submitQuiz();
+        }
+    }, 1000);
+
+    document.getElementById("next-btn").addEventListener("click", () => { currentQuestionIndex++; loadQuestion(); });
+    document.getElementById("prev-btn").addEventListener("click", () => { currentQuestionIndex--; loadQuestion(); });
+    document.getElementById("submit-btn").addEventListener("click", submitQuiz);
+
+    loadQuestion();
+</script>
+</body>
+</html>

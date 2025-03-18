@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algo Arena</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #2a4d14;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Arial', sans-serif;
+            background-image: url('jungle.jpg');
+            background-size: cover;
+            background-position: center;
+            animation: zoom-in 6s ease-in-out forwards;
+        }
+
+        @keyframes zoom-in {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+
+        #game-title {
+            font-size: 80px;
+            color: rgba(28, 112, 3, 0.877);
+            text-shadow: 4px 4px 10px black;
+            font-family: 'Creepster', serif;
+            text-align: center;
+            margin-bottom: 50px;
+            opacity: 1;
+            transform: translateY(0);
+            transition: transform 1s ease-in-out;
+        }
+
+        #loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        #loading-text {
+            font-size: 24px;
+            color: white;
+            margin-top: 10px;
+        }
+
+        .loading-bar {
+            width: 200px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            margin: 10px auto;
+            overflow: hidden;
+        }
+
+        .progress {
+            width: 0%;
+            height: 100%;
+            background: limegreen;
+        }
+
+        #login-box {
+            display: none;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            text-align: center;
+        }
+
+        .login-container input {
+            width: calc(100% - 20px);
+            height: 40px;
+            font-size: 18px;
+            padding: 8px;
+            margin-top: 10px;
+            border: 1px solid white;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+        }
+
+        .login-container button {
+            width: calc(100% - 20px);
+            height: 40px;
+            margin-top: 15px;
+            background: limegreen;
+            color: white;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #login-btn{
+             background-color: #4caf50;
+             color: white;
+             padding: 10px 20px;
+             border: none;
+             border-radius: 5px;
+             font-size: 18px;
+             cursor: pointer;
+             transition: background-color 0.3s, transform 0,2s;
+        }
+        #login-btn:hover{
+            background-color: #45a049;
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(72,239,128,0.7);
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 id="game-title">Algo Arena</h1>
+        <div id="loading-container">
+            <div id="loading-text">Loading<span id="percentage"> 0%</span></div>
+            <div class="loading-bar">
+                <div class="progress"></div>
+            </div>
+        </div>
+        <div id="login-box">
+            <div class="login-container">
+                <input type="text" id="username" placeholder="Enter your name" required>
+                <input type="email" id="email" placeholder="Enter your email" required>
+                <button id="login-btn">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBp1v7khdSis3VuBETMi7UWFzpQlFRAQsQ",
+            authDomain: "algoarenaevent.firebaseapp.com",
+            databaseURL: "https://algoarenaevent-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "algoarenaevent",
+            storageBucket: "algoarenaevent.appspot.com",
+            messagingSenderId: "1075838831030",
+            appId: "1:1075838831030:web:7909ac49bfa2843be55917"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        document.addEventListener("DOMContentLoaded", async function() {
+            const title = document.getElementById("game-title");
+            const progressBar = document.querySelector(".progress");
+            const percentageDisplay = document.getElementById("percentage");
+            const loadingContainer = document.getElementById("loading-container");
+            const loginBox = document.getElementById("login-box");
+
+            title.style.opacity = 1;
+            await delay(1000);
+            title.style.transform = "translateY(-70px)";
+
+            let progress = 0;
+            const interval = setInterval(() => {
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    loadingContainer.style.opacity = 0;
+                    setTimeout(() => {
+                        loadingContainer.style.display = "none";
+                        loginBox.style.display = "flex";
+                        loginBox.style.opacity = 1;
+                        loginBox.style.transform = "translateY(0)";
+                    }, 500);
+                } else {
+                    progress += 1;
+                    progressBar.style.width = `${progress}%`;
+                    percentageDisplay.textContent = ` ${progress}%`;
+                }
+            }, 30);
+        });
+        document.getElementById("login-btn").addEventListener("click", async function() {
+    const username = document.getElementById("username").value.trim();
+    const email = document.getElementById("email").value.trim();
+    if (username && email) {
+        localStorage.setItem("username", username); // Store in localStorage
+        sessionStorage.setItem("userEmail", email);
+        window.location.href = "level.html";
+    } else {
+        alert("Please enter valid details.");
+    }
+});
+
+        const delay = (ms) => new Promise(res => setTimeout(res, ms));
+    </script>
+</body>
+</html>
+
