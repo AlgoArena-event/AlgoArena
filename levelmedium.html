@@ -260,7 +260,7 @@ function previousQuestion() {
 
 document.getElementById("next-btn").addEventListener("click", nextQuestion);
 document.getElementById("prev-btn").addEventListener("click", previousQuestion);
-    async function submitQuiz() {
+async function submitQuiz() {
     const userAnswer = document.getElementById("answer-input").value.trim().toLowerCase();
     const correctAnswer = questions[currentQuestionIndex].answer.toLowerCase();
     if (userAnswer === correctAnswer) {
@@ -273,15 +273,17 @@ document.getElementById("prev-btn").addEventListener("click", previousQuestion);
         window.location.href = "index.html";
         return;
     }
+
     const emailKey = email.replace(/\./g, "_");
     const scoreRef = ref(db, `users/${emailKey}/${selectedLevel}Score`);
 
-    if (confirm(`Your score is ${score} out of ${questions.length}. Submit?`)) {
-        await set(scoreRef, score); // Store score in Firebase
-        alert("Score submitted successfully!");
-        window.location.href = "level.html";
-    }
-}
+    await set(scoreRef, score); // Store score in Firebase
+
+    alert(`Your score is ${score} out of ${questions.length}. Score submitted successfully!`);
+    window.location.href = "level.html";
+}  
+
+
     document.getElementById("submit-btn").addEventListener("click", submitQuiz);
 
     onAuthStateChanged(auth, (user) => {
